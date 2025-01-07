@@ -1,0 +1,27 @@
+body {
+    background-color: #fcaeae;
+    height: 100vh;
+    background-image: url(images/login.png);
+}
+
+form {
+    width: 38%;
+    height: 20px;
+    margin: auto;
+    padding-top: 100px; 
+}
+
+
+
+.bg {
+    background-color: #ffeadd;
+}
+
+.btn-color {
+    background-color: #ff6666;
+    border: black solid transparent;
+}
+
+/* .container {
+    background: gold;
+} */
