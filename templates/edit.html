@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header mb-3 bg p-5 rounded">
+            <h2 class="text-center">Edit Subject</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-group">
+                    <label for="name" class="form-label mt-4 fw-semibold">Name:</label>
+                    <input type="text" class="form-control" name="name" placeholder="Enter subject name"
+                        value="{{subjects.name}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="form-label mt-4 fw-semibold">Description:</label>
+                    <textarea class="form-control" name="description" rows="3"
+                        placeholder="Enter subject description"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3">
+                    <i class="fa fa-plus"></i>
+                    Update Subject</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+
+{% block style %}
+<style>
+    body {
+        background: linear-gradient(to bottom right, #f0a1c5, #fecd75);
+    }
+
+    .custom-card {
+        border-radius: 15px;
+        background-color: #1c1c3d;
+        color: white;
+        padding: 20px;
+    }
+
+    .subject-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        background-color: #ff4d4d;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    .btn-add {
+        background-color: #ffeb3b;
+        color: black;
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+
+    .btn-delete {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+    .btn-edit {
+        background-color: #a7f12f;
+        color: rgb(241, 9, 9);
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<h1>Welcome to admin Dashboard</h1>
+<div class="row">
+    {% for subject in subjects %}
+    <div class="col-md-6 mb-4">
+        <div class="custom-card">
+            <!-- Subject Name -->
+            <span class="subject-title">{{subject.name}}</span>
+            <div class="mt-3">
+                <!-- Add Chapter Button -->
+                <button class="btn btn-add">
+                    <i class="fas fa-plus"></i>
+                    Add Chapter</button>
+                <!-- Delete Subject Button -->
+                <a href="{{ url_for('delete_subject', id=subject.id) }}" class="btn btn-delete">
+                    <i class="fas fa-trash"></i> Delete Subject
+                </a>
+                <a href="{{ url_for('edit_subject', id=subject.id) }}" class="btn btn-edit">
+                    <i class="fas fa-edit"></i> Edit Subject
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<a href="{{url_for('subject_add')}}" class="btn btn-success">
+    <i class="fas fa-plus"></i>
+    Create Subjects
+</a>
+{% endblock %}
+
+<!-- lement.style {
+    /* left: 110px; */
+    right: 3px;
+    position: absolute;
+    bottom: 2px;
+} -->
+
+<!-- padding: 7px 22px;
+border-radius: 5px;
+display: inline-block;
+margin-bottom: 5px; -->
