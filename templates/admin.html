@@ -8,7 +8,8 @@ Admin Dashboard
 {% block style %}
 <style>
     body {
-        background: linear-gradient(to bottom right, #f0a1c5, #fecd75);
+        background-color: #FF9A8B;
+        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
     }
 
     .custom-card {
@@ -29,8 +30,8 @@ Admin Dashboard
     }
 
     .btn-add {
-        background-color: #ffeb3b;
-        color: black;
+        background-color: #00eaff;
+        color: rgb(248, 10, 10);
         border: none;
         font-weight: bold;
         border-radius: 15px;
@@ -43,12 +44,50 @@ Admin Dashboard
         font-weight: bold;
         border-radius: 15px;
     }
+
     .btn-edit {
         background-color: #a7f12f;
-        color: rgb(241, 9, 9);
+        color: rgb(72, 0, 253);
         border: none;
         font-weight: bold;
         border-radius: 15px;
+    }
+
+    .chapter-section {
+        margin-top: 15px;
+    }
+
+    .chapter-section {
+        margin-top: 15px;
+    }
+
+    .chapter-section table {
+        background: #1a237e;
+        /* Dark blue background */
+        color: #ffd700;
+        /* Golden text color */
+    }
+
+
+    .chapter-section th {
+        background: #000033;
+        /* Darker blue for header */
+        color: #ffd700;
+        border: 5px solid #00ff33;
+    }
+
+    .chapter-section td {
+        border-color: #00ff33;
+        border: 5px solid #00ff33
+    }
+
+    .chapter-section tr {
+        border: 1px solid #00ff33;
+    }
+
+    .btn {
+        margin-right: 5px;
+        margin-bottom: 2px;
     }
 </style>
 {% endblock %}
@@ -63,10 +102,38 @@ Admin Dashboard
             <!-- Subject Name -->
             <span class="subject-title">{{subject.name}}</span>
             <div class="mt-3">
+                <!-- Chapter Table -->
+                <div class="chapter-section">
+                    <table class="table table-bordered table-dark">
+                        <thead>
+                            <tr>
+                                <th>Chapter name</th>
+                                <th>Description</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for chapter in subject.chapters %}
+                            <tr>
+                                <td>{{ chapter.name }}</td>
+                                <td>{{ chapter.description }}</td>
+                                <td>
+                                    <a href="{{ url_for('edit_chapter', id=chapter.id) }}" class="btn btn-primary">
+                                        <i class="fas fa-edit"></i>Edit</a>
+                                    <a href="{{ url_for('delete_chapter', id=chapter.id) }}" class="btn btn-delete">
+                                        <i class="fas fa-trash"></i>Delete</a>
+                                    <a href="{{ url_for('create_quiz', id=chapter.id) }}" class="btn btn-success">
+                                        <i class="fas fa-edit"></i>Create Quiz</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 <!-- Add Chapter Button -->
-                <button class="btn btn-add">
-                    <i class="fas fa-plus"></i>
-                    Add Chapter</button>
+                <a href="{{url_for('chapter_add', subject_id=subject.id)}}" class="btn btn-add">
+                    <i class="fas fa-plus"></i> Add Chapter
+                </a>
                 <!-- Delete Subject Button -->
                 <a href="{{ url_for('delete_subject', id=subject.id) }}" class="btn btn-delete">
                     <i class="fas fa-trash"></i> Delete Subject

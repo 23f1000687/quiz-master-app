@@ -1,0 +1,160 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Quiz Dashboard
+{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #85FFBD;
+        background-image: linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%);
+    }
+
+    .custom-card {
+        border-radius: 15px;
+        background-color: #ff8a81;
+        color: white;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quiz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .quiz-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        background-color: #ff3737;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 10px;
+        display: inline-block;
+    }
+
+    .btn-live {
+        font-size: 1.2rem;
+        background-color: #00eaff;
+        color: rgb(248, 10, 10);
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+        padding: 8px 15px;
+        margin-left: auto;
+        /* This pushes the button to the right */
+    }
+
+    .btn-add {
+        background-color: #fc08b3;
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+
+    .btn-delete {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+
+    .btn-edit {
+        background-color: #a7f12f;
+        color: rgb(72, 0, 253);
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+
+    .btn-info {
+        background-color: #2f49f1;
+        color: rgb(248, 19, 19);
+        border: none;
+        font-weight: bold;
+        border-radius: 15px;
+    }
+    .btn {
+        margin-right: 5px;
+        margin-bottom: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Welcome to Quiz Dashboard</h1>
+
+<div class="row">
+    {% for quiz in quizzes %}
+    <div class="col-md-6 mb-4">
+        <div class="custom-card">
+            <!-- Subject Name -->
+            <div class="quiz-header">
+                <span class="quiz-title">{{quiz.name}}</span>
+                <a href="{{url_for('live_quiz', id=quiz.id)}}" class="btn btn-live">
+                    <i class="fas fa-eye"></i>Live Quiz
+                </a>
+            </div>
+            <div class="mt-3">
+                <div class="quiz-section">
+                    <table class="table table-bordered table-dark">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Option</th>
+                                <th>Correct option</th>
+                                <th>Marks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for question in quiz.questions %}
+                            <tr>
+                                <td>{{ question.question_name }}</td> <!-- Question text -->
+                                <td>
+                                    Option1. {{question.option1}}<br>
+                                    Option2. {{question.option2}}<br>
+                                    Option3. {{question.option3}}<br>
+                                    Option4. {{question.option4}}
+                                </td> <!-- All options -->
+                                <td>{{ question.correct_option }}</td> <!-- Correct option -->
+                                <td>{{ quiz.marks }}</td> <!-- Marks from quiz -->
+                                <td>
+                                    <!-- Action buttons -->
+                                    <a href="{{ url_for('edit_question', id=quiz.id, question_id=question.id) }}" class="btn btn-primary">
+                                        <i class="fas fa-edit"></i>Edit
+                                    </a>
+                                    <a href="{{ url_for('delete_question', id=quiz.id, question_id=question.id)}}" class="btn btn-delete">
+                                        <i class="fas fa-trash"></i>Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{{ url_for('show_quiz', id=quiz.id) }}" class="btn btn-info">
+                    <i class="fas fa-info-circle"></i> Show Info
+                </a>
+                <a href="{{ url_for('edit_quiz', id=quiz.id) }}" class="btn btn-edit">
+                    <i class="fas fa-edit"></i> Edit Quiz
+                </a>
+                <a href="{{ url_for('delete_quiz', id=quiz.id) }}" class="btn btn-delete">
+                    <i class="fas fa-trash"></i> Delete Quiz
+                </a>
+                <a href="{{ url_for('add_question', id=quiz.id) }}" class="btn btn-add">
+                    <i class="fas fa-plus"></i> Add Question
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

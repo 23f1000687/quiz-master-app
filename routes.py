@@ -1,12 +1,8 @@
-<<<<<<< HEAD
-from flask import Flask, render_template
-from app import app
-
-=======
 from flask import Flask, render_template, current_app as app, request, redirect, url_for, flash, session
-from models import db, User, Subject, Chapter
+from models import db, User, Subject, Chapter, Quiz, Question
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+from datetime import datetime
 
 admin = User.query.filter_by(is_admin=True).first()
 if not admin:
@@ -146,13 +142,161 @@ def profile_post():
     db.session.commit()
     flash("Profile Updated")
     return redirect(url_for('profile'))
-    
 
 @app.route("/logout")
 @auth_requried
 def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
+
+
+@app.route('/quiz')
+@auth_requried
+def quiz_management():
+    user = User.query.get(session['user_id'])
+    quizzes = Quiz.query.all()
+    return render_template('quiz.html', quizzes=quizzes, user=user)
+
+@app.route('/quiz/<int:id>/delete')
+@auth_requried
+def delete_quiz(id):
+    quiz = Quiz.query.get(id)
+    if not quiz:
+        flash("Quiz not found")
+        return redirect(url_for('quiz_management'))
+    
+    try:
+        # First delete all associated questions
+        Question.query.filter_by(quiz_id=id).delete()
+        # Then delete the quiz
+        db.session.delete(quiz)
+        db.session.commit()
+        flash("Quiz deleted Successfully")
+    except Exception as e:
+        db.session.rollback()
+        flash("Error deleting quiz")
+    
+    return redirect(url_for('quiz_management'))
+
+@app.route('/quiz/<int:id>/live')
+@auth_requried
+def live_quiz(id):
+    return 'live quiz'
+
+@app.route('/quiz/<int:id>/show')
+@auth_requried
+def show_quiz(id):
+    return 'Show quiz'
+
+@app.route('/quiz/<int:id>/edit')
+@auth_requried
+def edit_quiz(id):
+    user = User.query.get(session['user_id'])
+    quiz = Quiz.query.get_or_404(id)
+    return render_template('edit_quiz.html', quiz=quiz, user=user)
+
+@app.route('/quiz/<int:id>/edit', methods=['POST'])
+@auth_requried
+def edit_quiz_post(id):
+    quiz = Quiz.query.get_or_404(id)
+    
+    # Get form data
+    quiz.name = request.form.get('quiz_title')
+    quiz.no_of_question = request.form.get('no_of_question')
+    quiz.marks = request.form.get('marks')
+    quiz.date = datetime.strptime(request.form.get('date'), '%Y-%m-%d')
+    quiz.time = request.form.get('time')
+    quiz.remark = request.form.get('remark')
+    
+    try:
+        db.session.commit()
+        flash('Quiz updated successfully')
+    except:
+        db.session.rollback()
+        flash('Error updating quiz')
+    
+    return redirect(url_for('quiz_management'))
+
+@app.route('/quiz/<int:id>/add_question')
+@auth_requried
+def add_question(id):
+    quiz = Quiz.query.get_or_404(id)
+    return render_template('question.html', quiz=quiz)
+
+@app.route('/quiz/<int:id>/add_question', methods=['POST'])
+@auth_requried
+def add_question_post(id):
+    quiz = Quiz.query.get_or_404(id)
+    
+    # Get form data
+    question = request.form.get('question_name')
+    option1 = request.form.get('option1')
+    option2 = request.form.get('option2')
+    option3 = request.form.get('option3')
+    option4 = request.form.get('option4')
+    correct_option = request.form.get('correct_option')
+    
+    # Create new question
+    new_question = Question(
+        question_name=question,
+        option1=option1,
+        option2=option2,
+        option3=option3,
+        option4=option4,
+        correct_option=correct_option,
+        quiz_id=id
+    )
+    
+    try:
+        db.session.add(new_question)
+        db.session.commit()
+        flash('Question added successfully')
+    except:
+        db.session.rollback()
+        flash('Error adding question')
+    
+    return redirect(url_for('quiz_management'))
+
+
+@app.route("/quiz/<int:id>/question/<int:question_id>/edit", methods=['GET', 'POST'])
+@auth_requried
+def edit_question(id, question_id):
+    user = User.query.get(session['user_id'])
+    question = Question.query.get_or_404(question_id)
+    
+    if request.method == 'POST':
+        # Handle form submission and update question
+        question.name = request.form.get('question_name')
+        question.option1 = request.form.get('option1')
+        question.option2 = request.form.get('option2')
+        question.option3 = request.form.get('option3')
+        question.option4 = request.form.get('option4')
+        question.correct_option = request.form.get('correct_option')
+        
+        try:
+            db.session.commit()
+            flash('Question updated successfully')
+            return redirect(url_for('quiz_management'))
+        except:
+            db.session.rollback()
+            flash('Error updating question')
+            
+    return render_template('edit_question.html', question=question, user=user)
+
+
+@app.route("/quiz/<int:id>/question/<int:question_id>/delete")
+@auth_requried
+def delete_question(id, question_id):
+    question = Question.query.get_or_404(question_id)
+    try:
+        db.session.delete(question)
+        db.session.commit()
+        flash('Question deleted successfully')
+    except:
+        db.session.rollback()
+        flash('Error deleting question')
+    
+    return redirect(url_for('quiz_management'))
 
 @app.route("/admin")
 @admin_requried
@@ -200,7 +344,7 @@ def edit_subject(id):
     if not subjects:
         flash("Subject not found")
         return redirect(url_for('admin'))
-    return render_template('edit.html', subjects=subjects)
+    return render_template('edit_subject.html', subjects=subjects)
 
 @app.route("/subject/<int:id>/edit", methods=['POST'])
 @admin_requried
@@ -210,33 +354,181 @@ def edit_subject_post(id):
         flash("Subject not found")
         return redirect(url_for('admin'))
     subject_name = request.form.get('name')
+    subject_description = request.form.get('description')
     if not subject_name:
         flash("Please enter subject name")
         return redirect(url_for('edit_subject', id=id))
     subjects.name = subject_name
+    subjects.description = subject_description
     db.session.commit()
     flash("Subject updated successfully")
     return redirect(url_for('admin'))
 
-@app.route("/subject/<int:id>/delete")
+@app.route("/subject/<int:id>/delete")  # Change to GET since we're accessing directly
 @admin_requried
 def delete_subject(id):
-    subjects = Subject.query.get(id)
-    if not subjects:
+    subject = Subject.query.get(id)
+    if not subject:
         flash("Subject not found")
         return redirect(url_for('admin'))
-    return render_template('delete.html', subjects=subjects)
-
-@app.route("/subject/<int:id>/delete", methods=['POST'])
-@admin_requried
-def delete_subject_post(id):
-    subjects = Subject.query.get(id)
-    if not subjects:
-        flash("Subject not found")
-        return redirect(url_for('admin'))
-    db.session.delete(subjects)
-    db.session.commit()
-    flash("Subject deleted Successfully")
-    return redirect(url_for('admin'))
     
->>>>>>> ae29e00 (Built Admin dashboard with CRUD operations for subjects)
+    # First delete all associated chapters
+    Chapter.query.filter_by(subject_id=id).delete()
+    # Then delete the subject
+    db.session.delete(subject)
+    try:
+        db.session.commit()
+        flash("Subject deleted Successfully")
+    except Exception as e:
+        db.session.rollback()
+        flash("Error deleting subject")
+    
+    return redirect(url_for('admin'))
+
+
+@app.route("/chapter/add")
+@admin_requried
+def chapter_add():
+    user = User.query.get(session['user_id'])
+    subject_id = request.args.get('subject_id', type=int)
+    if not subject_id:
+        flash("No subject selected")
+        return redirect(url_for('admin'))
+    subject = Subject.query.get_or_404(subject_id)
+    return render_template('chapter.html', user=user, subject=subject, chapters=None)
+
+@app.route("/chapter/add", methods=['POST'])
+def chapter_add_post():
+    chapter_name = request.form.get('name')
+    chapter_description = request.form.get('description')
+    subject_id = request.args.get('subject_id', type=int)
+    
+    if not subject_id:
+        flash("No subject selected")
+        return redirect(url_for('admin'))
+    
+    subject = Subject.query.get_or_404(subject_id)
+
+    if chapter_name == '':
+        flash("Please enter chapter name")
+        return redirect(url_for('chapter_add', subject_id=subject_id))
+
+    chapter = Chapter.query.filter_by(name=chapter_name, subject_id=subject_id).first()
+    if chapter:
+        flash('Chapter already exists')
+        return redirect(url_for('chapter_add', subject_id=subject_id))
+
+    if len(chapter_name) > 64:
+        flash("Chapter name should not exceed 64 characters")
+        return redirect(url_for('chapter_add', subject_id=subject_id))
+
+    new_Chapter = Chapter(name=chapter_name, description=chapter_description, subject_id=subject.id)
+    db.session.add(new_Chapter)
+    db.session.commit()
+    flash("Chapter added successfully")
+    return redirect(url_for('admin'))
+
+@app.route("/chapter/<int:id>/edit")
+@admin_requried
+def edit_chapter(id):
+    chapters = Chapter.query.get(id)
+    if not chapters:
+        flash("Chapter not found")
+        return redirect(url_for('admin'))
+    return render_template('edit_chapter.html', chapters=chapters)
+
+@app.route("/chapter/<int:id>/edit", methods=['POST'])
+@admin_requried
+def edit_chapter_post(id):
+    chapters = Chapter.query.get(id)
+    if not chapters:
+        flash("Chapter not found")
+        return redirect(url_for('admin'))
+    chapter_name = request.form.get('name')
+    chapter_description = request.form.get('description')
+    if not chapter_name:
+        flash("Please enter chapter name")
+        return redirect(url_for('edit_chapter', id=id))
+    chapters.name = chapter_name
+    chapters.description = chapter_description
+    db.session.commit()
+    flash("Chapter updated successfully")
+    return redirect(url_for('admin'))
+
+@app.route("/chapter/<int:id>/delete")
+@admin_requried
+def delete_chapter(id):
+    chapter = Chapter.query.get(id)
+    if not chapter:
+        flash("Chapter not found")
+        return redirect(url_for('admin'))
+    
+    try:
+        db.session.delete(chapter)
+        db.session.commit()
+        flash("Chapter deleted successfully")
+    except Exception as e:
+        db.session.rollback()
+        flash("Error deleting chapter")
+    
+    return redirect(url_for('admin'))
+
+@app.route("/chapter/<int:id>/create")
+@admin_requried
+def create_quiz(id):
+    user = User.query.get(session['user_id'])
+    # chapter_id = request.args.get('chapter_id', type=int)
+    chapter_id = id
+    if not chapter_id:
+        flash("No chapter selected")
+        return redirect(url_for('admin'))
+    chapter = Chapter.query.get_or_404(chapter_id)
+    return render_template('create_quiz.html', user=user, chapter=chapter)
+
+@app.route("/chapter/<int:chapter_id>/create", methods=['POST'])
+@admin_requried
+def create_quiz_post(chapter_id):
+    quiz_name = request.form.get('quiz_title')
+    no_of_question = request.form.get('no_of_question')
+    marks = request.form.get('marks')
+    date = request.form.get('date')
+    time = request.form.get('time')
+    remark = request.form.get('remark')
+
+    date = datetime.strptime(date, '%Y-%m-%d')
+    
+    # Convert time to integer minutes
+    time = int(time)
+
+    chapter = Chapter.query.get_or_404(chapter_id)
+    if quiz_name == '':
+        flash("Please enter quiz name")
+        return redirect(url_for('create_quiz', id=chapter_id))
+
+    quiz = Quiz.query.filter_by(name=quiz_name, chapter_id=chapter_id).first()
+    if quiz:
+        flash('Quiz already exists')
+        return redirect(url_for('create_quiz', id=chapter_id))
+
+    # First check for 60 minutes
+    if int(time) > 60:
+        flash("Time should not exceed 60 minutes")
+        return redirect(url_for('create_quiz', id=chapter_id))
+
+    if int(no_of_question) <= 0 or int(marks) <= 0 or int(time) <= 0:
+        flash("Number of questions, marks, and time should be positive")
+        return redirect(url_for('create_quiz', id=chapter_id))
+
+    if int(no_of_question) > 100:
+        flash("Number of questions should not exceed 100")
+        return redirect(url_for('create_quiz', id=chapter_id))
+
+    if int(marks) > 100:
+        flash("Marks should not exceed 100")
+        return redirect(url_for('create_quiz', id=chapter_id))
+
+    new_quiz = Quiz(name=quiz_name, no_of_question=no_of_question, marks=marks, date=date, time=time, remark=remark, chapter_id=chapter.id)
+    db.session.add(new_quiz)
+    db.session.commit()
+    flash("Quiz created successfully")
+    return redirect(url_for('admin'))
