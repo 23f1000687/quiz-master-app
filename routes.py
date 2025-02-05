@@ -133,7 +133,7 @@ def profile_post():
             return redirect(url_for('profile'))
 
     new_passhash = generate_password_hash(password)
-
+    #hello world
     user.username = username
     user.password_hash = new_passhash
     user.full_name = full_name
