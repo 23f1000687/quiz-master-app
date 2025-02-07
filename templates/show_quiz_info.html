@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card custom-card">
+        <div class="card-header">
+            <h2 class="text-center">Quiz Information</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <tr>
+                    <th>Quiz Name</th>
+                    <td>{{ quiz.name }}</td>
+                </tr>
+                <tr>
+                    <th>Subject</th>
+                    <td>{{ subject.name }}</td>
+                </tr>
+                <tr>
+                    <th>Chapter</th>
+                    <td>{{ chapter.name }}</td>
+                </tr>
+                <tr>
+                    <th>Number of Questions</th>
+                    <td>{{ quiz.no_of_question }}</td>
+                </tr>
+                <tr>
+                    <th>Marks per Question</th>
+                    <td>{{ quiz.marks }}</td>
+                </tr>
+                <tr>
+                    <th>Date</th>
+                    <td>{{ quiz.date.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                <tr>
+                    <th>Time Duration (minutes)</th>
+                    <td>{{ quiz.time }}</td>
+                </tr>
+                {% if quiz.remark %}
+                <tr>
+                    <th>Remarks</th>
+                    <td>{{ quiz.remark }}</td>
+                </tr>
+                {% endif %}
+            </table>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('quiz_management') }}" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

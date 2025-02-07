@@ -93,13 +93,6 @@ def admin_requried(func):
         return func(*args, **kwargs)
     return inner
 
-@app.route("/")
-@auth_requried
-def home():
-    user = User.query.get(session['user_id'])
-    if user.is_admin:
-        return redirect(url_for('admin'))
-    return render_template('index.html')
 
 @app.route("/profile")
 @auth_requried
@@ -149,6 +142,20 @@ def logout():
     session.pop('user_id')
     return redirect(url_for('login'))
 
+@app.route('/search')
+@auth_requried
+def search():
+    user = User.query.get(session['user_id'])
+    query = request.args.get('q', '')
+    source = request.args.get('source', 'admin')  # Default to 'admin' to avoid redirection issue
+
+    if source == 'admin':
+        subjects = Subject.query.filter(Subject.name.ilike(f"%{query}%")).all() if query else Subject.query.all()
+        return render_template('admin.html', subjects=subjects, user=user, source=source)
+    else:
+        quizzes = Quiz.query.filter(Quiz.name.ilike(f"%{query}%")).all() if query else Quiz.query.all()
+        return render_template('quiz.html', quizzes=quizzes, user=user, source=source)
+
 
 @app.route('/quiz')
 @auth_requried
@@ -186,7 +193,11 @@ def live_quiz(id):
 @app.route('/quiz/<int:id>/show')
 @auth_requried
 def show_quiz(id):
-    return 'Show quiz'
+    user = User.query.get(session['user_id'])
+    quiz = Quiz.query.get_or_404(id)
+    chapter = Chapter.query.get(quiz.chapter_id)
+    subject = Subject.query.get(chapter.subject_id)
+    return render_template('show_quiz_info.html', quiz=quiz, chapter=chapter, subject=subject, user=user)
 
 @app.route('/quiz/<int:id>/edit')
 @auth_requried
@@ -266,7 +277,7 @@ def edit_question(id, question_id):
     
     if request.method == 'POST':
         # Handle form submission and update question
-        question.name = request.form.get('question_name')
+        question.question_name = request.form.get('question_name')
         question.option1 = request.form.get('option1')
         question.option2 = request.form.get('option2')
         question.option3 = request.form.get('option3')
@@ -532,3 +543,29 @@ def create_quiz_post(chapter_id):
     db.session.commit()
     flash("Quiz created successfully")
     return redirect(url_for('admin'))
+
+
+# USER ROUTES
+@app.route('/quiz/<int:id>/view')
+@auth_requried
+def view_quiz(id):
+    user = User.query.get(session['user_id'])
+    quiz = Quiz.query.get_or_404(id)
+    chapter = Chapter.query.get(quiz.chapter_id)
+    subject = Subject.query.get(chapter.subject_id)
+    return render_template('view_quiz.html', quiz=quiz, chapter=chapter, subject=subject, user=user)
+
+@app.route('/quiz/<int:id>/start')
+@auth_requried
+def start_quiz(id):
+    user = User.query.get(session['user_id'])
+    quiz = Quiz.query.get_or_404(id)
+    return 'view quiz'
+
+@app.route("/")
+@auth_requried
+def home():
+    user = User.query.get(session['user_id'])
+    quizzes = Quiz.query.all()
+    return render_template('index.html', quizzes=quizzes, user=user)
+
