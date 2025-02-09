@@ -63,6 +63,11 @@
                         <label class="form-label text-primary">Duration(in minutes):</label>
                         <input type="text" class="form-control" value="{{ quiz.time }}" readonly>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-primary">Remarks</label>
+                        <input type="text" class="form-control" value="{{ quiz.remark }}" readonly>
+                    </div>
                     
                     <div class="text-center">
                         <a href="{{ url_for('home') }}" class="btn btn-primary px-4">Close</a>

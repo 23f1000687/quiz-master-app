@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block style %}
+<style>
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #0052cc;
+        color: white;
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+    }
+
+    .btn-primary {
+        border-radius: 20px;
+        padding: 8px 30px;
+    }
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="text-center">Quiz Scores</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Quiz Name</th>
+                            <th>No. of Questions</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in scores %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ item.quiz.name }}</td>
+                            <td>{{ item.quiz.no_of_question }}</td>
+                            <td>{{ item.quiz.date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ item.score }}/{{ item.total_marks }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

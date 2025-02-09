@@ -19,7 +19,7 @@ class Subject(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(64), nullable = False, unique = True)
     description = db.Column(db.String(150))
-    chapters = db.relationship('Chapter', backref='subject', lazy=True)
+    chapters = db.relationship('Chapter', backref='subject', cascade='all, delete')
 
 
 class Chapter(db.Model):
@@ -54,8 +54,7 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable = False)
-    no_of_attempt = db.Column(db.Integer, nullable = False)
-    no_of_correct_question = db.Column(db.Integer, nullable = False)
+    marks = db.Column(db.Integer, nullable = False)
     timestamp = db.Column(db.Integer, default=lambda: int(datetime.utcnow().timestamp()))
 
     # with app.app_context():

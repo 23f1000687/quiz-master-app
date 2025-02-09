@@ -1,16 +1,33 @@
 {% extends 'layout.html' %}
-
+{% block style %}
+<style>
+    .heading{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .profile-pic{
+        width: 100px;
+        height: 100px;
+        border: 3px solid rgb(234, 10, 10);
+        border-radius: 50%;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
 {% block title %}
 Profile Page
 {% endblock %}
 
 {% block content %}
-<h1 class="display-1">
-    Hello
-    <span class="text-muted">@{{user.username}}</span>
-</h1>
-<div class="profile-pic">
-    <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed={{user.username}}" width="100" alt="">
+<div class="heading">
+    <h1 class="display-1">
+        Hello
+        <span class="text-muted">@{{user.username}}</span>
+    </h1>
+    <div class="profile-pic">
+        <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed={{user.username}}" width=100 alt="">
+    </div>
 </div>
 <!-- <a href="{{url_for('logout')}}" class="btn btn-outline-danger">Logout</a> -->
 

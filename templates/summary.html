@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Subject-wise Top Scores</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="topScoresChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Subject-wise Attempts</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="attemptsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Top Scores Chart
+    new Chart(document.getElementById('topScoresChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ labels| tojson }},
+        datasets: [{
+            label: 'Top Score',
+            data: {{ top_scores| tojson }},
+        backgroundColor: 'rgba(54, 162, 235, 0.5)'
+            }]
+        }
+    });
+
+    // Change Attempts Chart to Pie
+    new Chart(document.getElementById('attemptsChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ labels| tojson }},
+        datasets: [{
+            data: {{ attempts| tojson }},
+        backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(255, 206, 86, 0.5)',
+            'rgba(75, 192, 192, 0.5)'
+        ]
+            }]
+        },
+        options: {
+        plugins: {
+            legend: {
+                position: 'right'
+            }
+        }
+    }
+    });
+</script>
+{% endblock %}
