@@ -8,8 +8,8 @@ Admin Dashboard
 {% block style %}
 <style>
     body {
-        background-color: #FF9A8B;
-        background-image: linear-gradient(90deg, #FF9A8B 0%, #FF6A88 55%, #FF99AC 100%);
+        background-color: #FF9398;
+        background-image: linear-gradient(90deg, #FF9398 0%, #2779a7 100%);
     }
 
     .custom-card {
@@ -53,6 +53,7 @@ Admin Dashboard
         border-radius: 15px;
     }
 
+
     .chapter-section {
         margin-top: 15px;
     }
@@ -95,6 +96,22 @@ Admin Dashboard
 
 {% block content %}
 <h1>Welcome to admin Dashboard</h1>
+<a href="{{url_for('subject_add')}}" style="background-color: #198754;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 20px;
+    margin-left: 1100px;
+    margin-top: -44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 158px;
+    height: 50px;
+    margin-bottom: 20px;}">
+    <i class="fas fa-plus"></i>
+    Create Subjects
+</a>
 <div class="row">
     {% for subject in subjects %}
     <div class="col-md-6 mb-4">
@@ -147,10 +164,7 @@ Admin Dashboard
     {% endfor %}
 </div>
 
-<a href="{{url_for('subject_add')}}" class="btn btn-success">
-    <i class="fas fa-plus"></i>
-    Create Subjects
-</a>
+
 {% endblock %}
 
 <!-- lement.style {

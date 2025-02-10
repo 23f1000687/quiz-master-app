@@ -40,7 +40,9 @@
                             <th>Quiz Name</th>
                             <th>No. of Questions</th>
                             <th>Date</th>
+                            <th>Timestamp</th>
                             <th>Score</th>
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -50,7 +52,9 @@
                             <td>{{ item.quiz.name }}</td>
                             <td>{{ item.quiz.no_of_question }}</td>
                             <td>{{ item.quiz.date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ datetime.fromtimestamp(item.timestamp).strftime('%I:%M %p') }}</td>
                             <td>{{ item.score }}/{{ item.total_marks }}</td>
+                            
                         </tr>
                         {% endfor %}
                     </tbody>

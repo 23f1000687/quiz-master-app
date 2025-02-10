@@ -2,7 +2,7 @@ from flask import Flask, render_template, current_app as app, request, redirect,
 from models import db, User, Subject, Chapter, Quiz, Question, Score
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func
 
 admin = User.query.filter_by(is_admin=True).first()
@@ -158,6 +158,50 @@ def search():
         elif source == 'quiz':
             quizzes = Quiz.query.filter(Quiz.name.ilike(f"%{query}%")).all()
             return render_template('quiz.html', quizzes=quizzes, user=user, source=source)
+        elif source == 'users':
+            users = User.query.filter(User.username.ilike(f"%{query}%")).all()
+            return render_template('user_data.html', users=users, user=user, source=source)
+
+    else:
+        if source == 'subjects':
+            quizzes = Quiz.query.join(
+                Chapter, Quiz.chapter_id == Chapter.id
+            ).join(
+                Subject, Chapter.subject_id == Subject.id
+            ).filter(
+                Subject.name.ilike(f"%{query}%")
+            ).all()
+            return render_template('index.html', quizzes=quizzes, user=user, source=source)
+        elif source == 'quiz':
+            quizzes = Quiz.query.filter(Quiz.name.ilike(f"%{query}%")).all()
+            return render_template('index.html', quizzes=quizzes, user=user, source=source)
+        elif source == 'scores':
+            try:
+                search_marks = int(query)
+                scores = Score.query.join(
+                    Quiz, Score.quiz_id == Quiz.id
+                ).filter(
+                    Score.user_id == user.id,
+                    Score.marks == search_marks
+                ).all()
+                
+                # Get quizzes using proper join relationship
+                quizzes = [Quiz.query.get(score.quiz_id) for score in scores]
+                return render_template('index.html', quizzes=quizzes, user=user, source=source)
+            except ValueError:
+                flash('Please enter a valid number for score search')
+                return redirect(url_for('home'))
+        elif source == 'dates':
+            try:
+                search_date = datetime.strptime(query, '%d/%m/%Y').date()
+                quizzes = Quiz.query.filter(
+                    func.date(Quiz.date) == search_date
+                ).all()
+                return render_template('index.html', quizzes=quizzes, user=user, source=source)
+            except ValueError:
+                flash('Invalid date format. Use DD/MM/YYYY')
+                return redirect(url_for('home'))
+        
 
 
 
@@ -357,11 +401,12 @@ def subject_add_post():
 @app.route("/subject/<int:id>/edit")
 @admin_requried
 def edit_subject(id):
+    user = User.query.get(session['user_id'])
     subjects = Subject.query.get(id)
     if not subjects:
         flash("Subject not found")
         return redirect(url_for('admin'))
-    return render_template('edit_subject.html', subjects=subjects)
+    return render_template('edit_subject.html', subjects=subjects, user=user)
 
 @app.route("/subject/<int:id>/edit", methods=['POST'])
 @admin_requried
@@ -463,11 +508,12 @@ def chapter_add_post():
 @app.route("/chapter/<int:id>/edit")
 @admin_requried
 def edit_chapter(id):
+    user = User.query.get(session['user_id'])
     chapters = Chapter.query.get(id)
     if not chapters:
         flash("Chapter not found")
         return redirect(url_for('admin'))
-    return render_template('edit_chapter.html', chapters=chapters)
+    return render_template('edit_chapter.html', chapters=chapters, user=user)
 
 @app.route("/chapter/<int:id>/edit", methods=['POST'])
 @admin_requried
@@ -668,12 +714,13 @@ def save_answer(id):
         existing_score = Score.query.filter_by(user_id=user.id, quiz_id=id).first()
         if existing_score:
             existing_score.marks = score
-            existing_score.timestamp = int(datetime.utcnow().timestamp())
+            existing_score.timestamp = int((datetime.utcnow() + timedelta(hours=5, minutes=30)).timestamp())
         else:
             new_score = Score(
                 user_id=user.id,
                 quiz_id=id,
-                marks=score
+                marks=score,
+                timestamp=int((datetime.utcnow() + timedelta(hours=5, minutes=30)).timestamp())
             )
             db.session.add(new_score)
         
@@ -699,42 +746,14 @@ def save_answer(id):
                             total_questions=len(questions),
                             user=user)
     else:
-        # If last question, calculate and save score
-        score = 0
-        for i, question in enumerate(questions):
-            user_answer = session['answers'].get(str(i))
-            print(user_answer, question.correct_option)
-            if user_answer and user_answer == question.correct_option:
-                print(f"Question {i+1}:")
-                print(f"User's answer: {user_answer}")
-                print(f"Correct answer: {question.correct_option}")
-                print(f"Match: {user_answer == question.correct_option}")
-                print("------------------------")
-                score += quiz.marks
-        
-        existing_score = Score.query.filter_by(user_id=user.id, quiz_id=id).first()
-        if existing_score:
-            existing_score.marks = score
-            existing_score.timestamp = int(datetime.utcnow().timestamp())
-        else:
-            new_score = Score(
-                user_id=user.id,
-                quiz_id=id,
-                marks=score
-            )
-            db.session.add(new_score)
-        
-        try:
-            db.session.commit()
-            session.pop('current_question', None)
-            session.pop('quiz_id', None)
-            session.pop('answers', None)
-            flash('Quiz Submitted Successfully')
-            return redirect(url_for('home'))
-        except:
-            db.session.rollback()
-            flash('Error submitting quiz')
-            return redirect(url_for('home'))
+        flash('No more questions left. Please press Submit to complete the quiz.')
+        return render_template('start_quiz.html',
+                            quiz=quiz,
+                            question=questions[current_q],
+                            question_number=current_q + 1,
+                            total_questions=len(questions),
+                            user=user)
+        # Calculate and save score
 
 @app.route('/quiz/<int:id>/submit', methods=['POST'])
 @auth_requried
@@ -774,6 +793,7 @@ def submit_quiz(id):
 @app.route('/scores')
 @auth_requried
 def score():
+    from datetime import datetime
     user = User.query.get(session['user_id'])
     scores = db.session.query(
         Score, Quiz
@@ -787,13 +807,15 @@ def score():
     for score, quiz in scores:
         score_data.append({
             'quiz': quiz,
-            'score': score.marks,  # Changed from no_of_correct_question
-            'total_marks': quiz.no_of_question * quiz.marks
+            'score': score.marks,
+            'total_marks': quiz.no_of_question * quiz.marks,
+            'timestamp': score.timestamp
         })
     
     return render_template('score.html', 
                          scores=score_data, 
-                         user=user)
+                         user=user,
+                         datetime=datetime)
 
 
 @app.route('/user_summary')
@@ -840,14 +862,12 @@ def user_summary():
 @auth_requried
 def home():
     user = User.query.get(session['user_id'])
-
-    if not user:
-        return redirect(url_for('login'))
-        
     if user.is_admin:
         return redirect(url_for('admin'))
-        
-    quizzes = Quiz.query.all()
+    
+    # Only get quizzes that have associated questions
+    quizzes = Quiz.query.join(Question).group_by(Quiz.id).having(func.count(Question.id) > 0).all()
+    
     return render_template('index.html', quizzes=quizzes, user=user)
 
 @app.route('/user_data')
