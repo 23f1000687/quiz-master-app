@@ -10,7 +10,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(50), unique = True, nullable = False)
     password_hash = db.Column(db.String(256),  nullable = False)
-    full_name = db.Column(db.String(100), nullable = True)
+    full_name = db.Column(db.String(100), nullable=False, default='User')
     qualification = db.Column(db.String(255), nullable = True)
     dob = db.Column(db.String(20), nullable = True)
     is_admin = db.Column(db.Boolean, nullable = False, default = False)

@@ -1,4 +1,54 @@
 {% extends 'layout.html' %}
+
+{% block style %}
+    <style>
+
+        body {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+        }
+        
+        .card {
+            border: none;
+            background: transparent;
+        }
+        
+        .text-center {
+            font-size: 2rem;
+            color: #1A1A2E;
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .btn-primary {
+            background-color: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        
+
+
+    </style>
+
+{% endblock %}
+
 {% block content %}
 
 <div class="container mt-4">

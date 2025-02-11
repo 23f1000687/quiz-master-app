@@ -1,5 +1,71 @@
 {% extends 'layout.html' %}
 
+{% block style %}
+    <style>
+        body {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+        }
+        
+        .card {
+            border: none;
+            background: transparent;
+        }
+
+        .card-header {
+            background: transparent;
+            border: none;
+            padding: 20px 0;
+        }
+        
+        .btn-primary {
+            background-color: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #1A1A2E;
+            margin-bottom: 8px;
+            border: #000;
+            display: block;
+        }
+    
+        .form-control {
+            color: #1A1A2E !important;  /* Dark text color */
+            background-color: white !important;
+            border: 1px solid #ddd !important;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .form-control:focus {
+            border-color: #0061F2 !important;
+            box-shadow: 0 0 0 2px rgba(0, 97, 242, 0.2);
+            outline: none;
+        }
+        
+    </style>
+
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="card">
@@ -14,12 +80,12 @@
                 </div>
                 <div class="form-group">
                     <label for="no_of_question" class="form-label mt-4 fw-semibold">No_Of_Question:</label>
-                    <input type="text" class="form-control" name="no_of_question" placeholder="Enter Number of Question"
+                    <input type="number" class="form-control" name="no_of_question" placeholder="Enter Number of Question"
                         required>
                 </div>
                 <div class="form-group">
                     <label for="marks" class="form-label mt-4 fw-semibold">Marks (per question):</label>
-                    <input type="text" class="form-control" name="marks" placeholder="Enter Marks per Question"
+                    <input type="number" class="form-control" name="marks" placeholder="Enter Marks per Question"
                         required>
                 </div>
                 <div class="form-group">

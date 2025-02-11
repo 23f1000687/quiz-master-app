@@ -2,25 +2,48 @@
 
 {% block style %}
 <style>
-    .card {
+    body {
+        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .container {
+        background-color: white;
         border-radius: 25px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         max-width: 600px;
         margin: 0 auto;
     }
     
-    .form-label {
-        color: #0d6efd;
+    .text-center {
+        color: #0061F2;
+        font-size: 24px;
         font-weight: 500;
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        color: #0066fd;
+        font-weight: 500;
+        margin-bottom: 8px;
     }
     
     .form-control {
         border-radius: 10px;
+        padding: 8px 12px;
+        margin-bottom: 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        cursor: not-allowed;
     }
     
-    .btn {
-        border-radius: 15px;
-        min-width: 100px;
+    .btn-primary {
+        background-color: #0061F2;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 24px;
+        font-weight: 500;
     }
     </style>
 {% endblock %}

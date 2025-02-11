@@ -2,34 +2,39 @@
 
 {% block style %}
 <style>
+    body {
+        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
     .quiz-container {
-        padding: 20px;
-        background: linear-gradient(135deg, #fff5e6, #ffe6f0);
+        padding: 30px;
+        background: linear-gradient(115deg, #fffbf6, #fff5f5);
         min-height: 100vh;
     }
     
     .quiz-header {
         display: flex;
         justify-content: space-between;
-        padding: 10px 20px;
+        padding: 15px 20px;
     }
     
     .progress-text {
         background: #00bcd4;
         color: white;
-        padding: 5px 15px;
+        padding: 8px 15px;
         border-radius: 20px;
     }
     
     .timer {
-        background: #ff4444;
+        background: #ff6666;
         color: white;
-        padding: 5px 15px;
+        padding: 8px 15px;
         border-radius: 20px;
     }
     
     .question-container {
-        background: #9373f3;
+        background: #8e73f3;
         color: rgb(255, 255, 255);
         padding: 20px;
         border-radius: 20px;
@@ -49,13 +54,18 @@
     }
     
     .option-btn {
-        background: #808080;
-        color: black;
-        padding: 15px 30px;
-        border-radius: 20px;
+        background: #888888;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
         width: 45%;
         cursor: pointer;
         text-align: center;
+    }
+    
+    
+    .option-btn:hover {
+        background: #666666;
     }
     
     input[type="radio"] {
@@ -74,12 +84,17 @@
     }
     
     .gradient-btn {
-        background: linear-gradient(45deg, #00bcd4, #ffeb3b);
+        background: linear-gradient(45deg, #00bcd4, #1de9b6);
         border: none;
-        padding: 10px 30px;
-        border-radius: 20px;
-        color: black;
+        padding: 12px 30px;
+        border-radius: 25px;
+        color: white;
         cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .gradient-btn:hover {
+        transform: translateY(-2px);
     }
     </style>
 {% endblock %}

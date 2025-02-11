@@ -54,7 +54,7 @@ def register_post():
     qualification = request.form.get('qualification')
     dob = request.form.get('date')
     
-    if not username or not password or not qualification:
+    if not username or not password or not qualification or not full_name:
         flash('Please fill all fields')
         return redirect(url_for('register'))
 
@@ -233,10 +233,6 @@ def delete_quiz(id):
     
     return redirect(url_for('quiz_management'))
 
-@app.route('/quiz/<int:id>/live')
-@admin_requried
-def live_quiz(id):
-    return 'live quiz'
 
 @app.route('/quiz/<int:id>/show')
 @admin_requried
