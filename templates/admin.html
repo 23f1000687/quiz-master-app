@@ -47,9 +47,6 @@ Admin Dashboard
         border: 1px solid #2A2A4A;
     }
 
-    /* Action Buttons */
-
-
     .btn-add {
         background-color: #00BFA6;
         color: white;
@@ -72,8 +69,6 @@ Admin Dashboard
         border: none;
         border-radius: 15px;
     }
-
-    /* Create Subjects Button */
     .btn-create-subject {
         background-color: #28A745;
         color: white;
@@ -129,13 +124,10 @@ Admin Dashboard
     {% for subject in subjects %}
     <div class="col-md-6 mb-4">
         <div class="custom-card">
-            <!-- Subject Name -->
-            <!-- <span class="subject-title">{{subject.name}}</span> -->
             <span class="subject-title" data-description="{{subject.description}}">
                 {{subject.name}}
             </span>
             <div class="mt-3">
-                <!-- Chapter Table -->
                 <div class="chapter-section">
                     <table class="table table-bordered table-dark">
                         <thead>
@@ -163,11 +155,9 @@ Admin Dashboard
                         </tbody>
                     </table>
                 </div>
-                <!-- Add Chapter Button -->
                 <a href="{{url_for('chapter_add', subject_id=subject.id)}}" class="btn btn-add">
                     <i class="fas fa-plus"></i> Add Chapter
                 </a>
-                <!-- Delete Subject Button -->
                 <a href="{{ url_for('delete_subject', id=subject.id) }}" class="btn btn-delete">
                     <i class="fas fa-trash"></i> Delete Subject
                 </a>

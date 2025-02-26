@@ -35,8 +35,6 @@ def login_post():
     if not check_password_hash(user.password_hash, password):
         flash("Invalid password")
         return redirect(url_for('login'))
-    # print(url_for('index'))
-    # return redirect(url_for('home'))
 
     session['user_id'] = user.id
     flash("Login successful")
@@ -87,7 +85,7 @@ def admin_requried(func):
         if 'user_id' not in session:
             return redirect(url_for('login'))
         user = User.query.get(session['user_id'])
-        if not user or not user.is_admin:  # Add user existence check
+        if not user or not user.is_admin:  
             return redirect(url_for('home'))
         return func(*args, **kwargs)
     return decorated_function
@@ -125,7 +123,6 @@ def profile_post():
             return redirect(url_for('profile'))
 
     new_passhash = generate_password_hash(password)
-    #hello world
     user.username = username
     user.password_hash = new_passhash
     user.full_name = full_name
@@ -185,7 +182,6 @@ def search():
                     Score.marks == search_marks
                 ).all()
                 
-                # Get quizzes using proper join relationship
                 quizzes = [Quiz.query.get(score.quiz_id) for score in scores]
                 return render_template('index.html', quizzes=quizzes, user=user, source=source)
             except ValueError:
@@ -202,9 +198,6 @@ def search():
                 flash('Invalid date format. Use DD/MM/YYYY')
                 return redirect(url_for('home'))
         
-
-
-
 @app.route('/quiz')
 @admin_requried
 def quiz_management():
@@ -221,9 +214,8 @@ def delete_quiz(id):
         return redirect(url_for('quiz_management'))
     
     try:
-        # First delete all associated questions
+        
         Question.query.filter_by(quiz_id=id).delete()
-        # Then delete the quiz
         db.session.delete(quiz)
         db.session.commit()
         flash("Quiz deleted Successfully")
@@ -254,8 +246,7 @@ def edit_quiz(id):
 @admin_requried
 def edit_quiz_post(id):
     quiz = Quiz.query.get_or_404(id)
-    
-    # Get form data
+
     quiz.name = request.form.get('quiz_title')
     quiz.no_of_question = request.form.get('no_of_question')
     quiz.marks = request.form.get('marks')
@@ -275,7 +266,7 @@ def edit_quiz_post(id):
 @app.route('/quiz/<int:id>/add_question')
 @admin_requried
 def add_question(id):
-    user = User.query.get(session['user_id'])  # Add this line
+    user = User.query.get(session['user_id'])  
     quiz = Quiz.query.get_or_404(id)
     return render_template('question.html', quiz=quiz, user=user)
 
@@ -284,15 +275,13 @@ def add_question(id):
 def add_question_post(id):
     quiz = Quiz.query.get_or_404(id)
     
-    # Get form data
     question = request.form.get('question_name')
     option1 = request.form.get('option1')
     option2 = request.form.get('option2')
     option3 = request.form.get('option3')
     option4 = request.form.get('option4')
     correct_option = request.form.get('correct_option')
-    
-    # Create new question
+
     new_question = Question(
         question_name=question,
         option1=option1,
@@ -321,7 +310,7 @@ def edit_question(id, question_id):
     question = Question.query.get_or_404(question_id)
     
     if request.method == 'POST':
-        # Handle form submission and update question
+       
         question.question_name = request.form.get('question_name')
         question.option1 = request.form.get('option1')
         question.option2 = request.form.get('option2')
@@ -357,7 +346,7 @@ def delete_question(id, question_id):
 @app.route("/admin")
 @admin_requried
 def admin():
-    user = User.query.get(session['user_id'])  # Add this line
+    user = User.query.get(session['user_id'])  
     subjects = Subject.query.all()
     print("Subjects found")
     return render_template('admin.html', subjects=subjects, user=user) 
@@ -373,7 +362,7 @@ def subject_add_post():
     subject_name = request.form.get('name')
     print(subject_name)
     subject_description = request.form.get('description')
-    # print("hello")
+    
 
     if subject_name == '':
         flash("Please enter subject name")
@@ -431,24 +420,23 @@ def delete_subject(id):
         return redirect(url_for('admin'))
 
     try:
-        # Get all chapters for this subject
+        
         chapters = Chapter.query.filter_by(subject_id=id).all()
         
-        # Delete all quizzes and their questions for each chapter
         for chapter in chapters:
             quizzes = Quiz.query.filter_by(chapter_id=chapter.id).all()
             for quiz in quizzes:
-                # Delete associated scores first
+                
                 Score.query.filter_by(quiz_id=quiz.id).delete()
-                # Delete questions
+               
                 Question.query.filter_by(quiz_id=quiz.id).delete()
-                # Delete the quiz
+                
                 db.session.delete(quiz)
             
-            # Delete the chapter
+            
             db.session.delete(chapter)
         
-        # Finally delete the subject
+       
         db.session.delete(subject)
         db.session.commit()
         flash("Subject deleted Successfully")
@@ -551,7 +539,7 @@ def delete_chapter(id):
 @admin_requried
 def create_quiz(id):
     user = User.query.get(session['user_id'])
-    # chapter_id = request.args.get('chapter_id', type=int)
+    
     chapter_id = id
     if not chapter_id:
         flash("No chapter selected")
@@ -571,7 +559,7 @@ def create_quiz_post(chapter_id):
 
     date = datetime.strptime(date, '%Y-%m-%d')
     
-    # Convert time to integer minutes
+    
     time = int(time)
 
     chapter = Chapter.query.get_or_404(chapter_id)
@@ -620,31 +608,30 @@ def create_quiz_post(chapter_id):
 def summary():
     user = User.query.get(session['user_id'])
     
-    # Subject-wise Top Scores
     subject_top_scores = db.session.query(
         Subject.name.label('subject_name'),
         func.max(Score.marks).label('top_score')
     ).join(
         Quiz, Quiz.id == Score.quiz_id
     ).join(
-        Chapter, Chapter.id == Quiz.chapter_id  # Join through Chapter
+        Chapter, Chapter.id == Quiz.chapter_id 
     ).join(
-        Subject, Subject.id == Chapter.subject_id  # Then join to Subject
+        Subject, Subject.id == Chapter.subject_id  
     ).group_by(Subject.name).all()
     
-    # Subject-wise User Attempts
+
     subject_attempts = db.session.query(
         Subject.name.label('subject_name'),
         func.count(Score.id).label('attempts')
     ).join(
         Quiz, Quiz.id == Score.quiz_id
     ).join(
-        Chapter, Chapter.id == Quiz.chapter_id  # Join through Chapter
+        Chapter, Chapter.id == Quiz.chapter_id 
     ).join(
-        Subject, Subject.id == Chapter.subject_id  # Then join to Subject
+        Subject, Subject.id == Chapter.subject_id  
     ).group_by(Subject.name).all()
     
-    # Format data for Chart.js
+    
     labels = [score.subject_name for score in subject_top_scores]
     top_scores = [score.top_score for score in subject_top_scores]
     attempts = [attempt.attempts for attempt in subject_attempts]
@@ -673,7 +660,7 @@ def start_quiz(id):
     quiz = Quiz.query.get_or_404(id)
     questions = Question.query.filter_by(quiz_id=id).all()
     
-    # Only keep these session variables
+    
     session['current_question'] = 0
     session['quiz_id'] = id
     
@@ -699,14 +686,14 @@ def save_answer(id):
     session['answers'][str(current_q)] = answer
     
     if action == 'submit':
-        # Calculate score
+        
         score = 0
         for i, question in enumerate(questions):
             user_answer = session['answers'].get(str(i))
             if user_answer and user_answer == question.correct_option:
                 score += quiz.marks
         
-        # Update existing score or create new one
+       
         existing_score = Score.query.filter_by(user_id=user.id, quiz_id=id).first()
         if existing_score:
             existing_score.marks = score
@@ -732,7 +719,7 @@ def save_answer(id):
             flash('Error submitting quiz')
             return redirect(url_for('home'))
     
-    # Handle Save and Next
+    
     if current_q < len(questions) - 1:
         session['current_question'] = current_q + 1
         return render_template('start_quiz.html',
@@ -749,7 +736,7 @@ def save_answer(id):
                             question_number=current_q + 1,
                             total_questions=len(questions),
                             user=user)
-        # Calculate and save score
+       
 
 @app.route('/quiz/<int:id>/submit', methods=['POST'])
 @auth_requried
@@ -760,13 +747,13 @@ def submit_quiz(id):
     answers = session.get('answers', {})
     score = 0
     
-    # Calculate score
+   
     for i, question in enumerate(questions):
         user_answer = answers.get(str(i))
         if user_answer and user_answer == question.correct_option:
             score += quiz.marks
     
-    # Save score to database
+    
     new_score = Score(
         user_id=user.id,
         quiz_id=id,
@@ -819,7 +806,7 @@ def score():
 def user_summary():
     user = User.query.get(session['user_id'])
     
-    # Subject-wise number of quizzes taken
+    
     subject_quiz_counts = db.session.query(
         Subject.name.label('subject_name'),
         func.count(Score.id).label('quiz_count')
@@ -833,7 +820,7 @@ def user_summary():
         Score.user_id == user.id
     ).group_by(Subject.name).all()
     
-    # Month-wise quiz attempts
+    
     month_attempts = db.session.query(
         func.strftime('%m', func.datetime(Score.timestamp, 'unixepoch')).label('month'),
         func.count(Score.id).label('attempts')
@@ -841,7 +828,7 @@ def user_summary():
         Score.user_id == user.id
     ).group_by('month').all()
     
-    # Format data for charts
+    
     subjects = [item.subject_name for item in subject_quiz_counts]
     quiz_counts = [item.quiz_count for item in subject_quiz_counts]
     months = [item.month for item in month_attempts]
@@ -861,7 +848,7 @@ def home():
     if user.is_admin:
         return redirect(url_for('admin'))
     
-    # Only get quizzes that have associated questions
+    
     quizzes = Quiz.query.join(Question).group_by(Quiz.id).having(func.count(Question.id) > 0).all()
     
     return render_template('index.html', quizzes=quizzes, user=user)
@@ -870,7 +857,7 @@ def home():
 @admin_requried
 def user_data():
     user = User.query.get(session['user_id'])
-    # Get all users except the admin
+   
     users = User.query.filter(User.is_admin == False).all()
     return render_template('user_data.html', users=users, user=user)
 
@@ -884,10 +871,10 @@ def delete_user(id):
     user_to_delete = User.query.get_or_404(id)
     
     try:
-        # Delete associated scores first
+       
         Score.query.filter_by(user_id=id).delete()
         
-        # Delete the user
+        
         db.session.delete(user_to_delete)
         db.session.commit()
         flash('User deleted successfully')

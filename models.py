@@ -54,7 +54,3 @@ class Score(db.Model):
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable = False)
     marks = db.Column(db.Integer, nullable = False)
     timestamp = db.Column(db.Integer, default=lambda: int(datetime.utcnow().timestamp()))
-
-    # with app.app_context():
-    
-    # db.session.commit()
