@@ -129,7 +129,7 @@ def profile_post():
     user.date = dob
     user.qualification = qualification
     db.session.commit()
-    flash("Profile Updated")
+    flash("Profile Updated Successfully")
     return redirect(url_for('profile'))
 
 @app.route("/logout")
@@ -348,7 +348,6 @@ def delete_question(id, question_id):
 def admin():
     user = User.query.get(session['user_id'])  
     subjects = Subject.query.all()
-    print("Subjects found")
     return render_template('admin.html', subjects=subjects, user=user) 
 
 @app.route("/subject/add")
@@ -360,7 +359,6 @@ def subject_add():
 @app.route("/subject/add", methods=['POST'])
 def subject_add_post():
     subject_name = request.form.get('name')
-    print(subject_name)
     subject_description = request.form.get('description')
     
 
